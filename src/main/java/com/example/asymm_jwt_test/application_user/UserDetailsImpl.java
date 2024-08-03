@@ -1,6 +1,7 @@
 package com.example.asymm_jwt_test.application_user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 public class UserDetailsImpl implements UserDetails {
     private String email;
     @JsonIgnore
-    private String password; // Passwords will not be included in the token
+    private String password;
     private Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl( String email, String password, Collection<? extends GrantedAuthority> authorities ) {

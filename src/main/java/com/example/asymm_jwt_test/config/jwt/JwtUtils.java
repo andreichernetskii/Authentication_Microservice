@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +16,10 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
-import java.security.Key;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Date;
 import java.util.stream.Collectors;
 
@@ -48,7 +52,7 @@ public class JwtUtils {
                 .path( "/api" )
                 .maxAge( 24 * 60 * 60 )
                 .httpOnly( true )
-//                .secure( true )
+                .secure( true )
                 .build();
     }
 
@@ -61,7 +65,13 @@ public class JwtUtils {
 
     // get username from JWT
     public String getUserNameFromJwtToken( String token ) {
-        return Jwts.parser().setSigningKey( key() ).build().parseClaimsJws( token ).getBody().getSubject();
+        return Jwts
+                .parser()
+                .setSigningKey( key() )
+                .build()
+                .parseClaimsJws( token )
+                .getBody()
+                .getSubject();
     }
 
     private Key key() {
@@ -96,8 +106,31 @@ public class JwtUtils {
                                 .map( auth -> auth.getAuthority() ).collect( Collectors.toList()) )
                 .issuedAt( new Date() )
                 .expiration( new Date( (new Date()).getTime() + jwtExpirationMs ) )
-                .signWith( key(), SignatureAlgorithm.HS256 )
+                .signWith( Jwts.SIG.RS256, generateJwtKeyEncryption(  ) )
                 .compact();
+    }
+
+    public PublicKey generateJwtKeyDecryption( String jwtPublicKey )
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+
+        KeyFactory keyFactory = KeyFactory.getInstance( "RSA" );
+        byte[] keyBytes = Base64.decodeBase64( jwtPublicKey );
+        X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec( keyBytes );
+
+        return keyFactory.generatePublic( x509EncodedKeySpec );
+
+
+    }
+
+    public PrivateKey generateJwtKeyEncryption( String jwtPrivateKey )
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+
+        KeyFactory keyFactory = KeyFactory.getInstance( "RSA" );
+        byte[] keyBytes = Base64.decodeBase64( jwtPrivateKey );
+        PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec( keyBytes );
+
+        return keyFactory.generatePrivate( pkcs8EncodedKeySpec );
+
     }
 
     public String parseJwt( HttpServletRequest request ) {
