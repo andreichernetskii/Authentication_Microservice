@@ -41,14 +41,15 @@ public class JwtUtils {
     public String getJwtFromCookies( HttpServletRequest request ) {
         Cookie cookie = WebUtils.getCookie( request, jwtCookie );
 
-        if ( cookie != null ) return cookie.getValue();
-        else return null;
+        return cookie != null ? cookie.getValue() : null;
     }
 
     // generate a Cookie containing JWT from username, date, expiration, secret
     public ResponseCookie generateJwtCookie( UserDetailsImpl userPrincipal ) {
         String jwt = generateTokenFromUsername( userPrincipal );
-        return ResponseCookie.from( jwtCookie, jwt )
+
+        return ResponseCookie
+                .from( jwtCookie, jwt )
                 .path( "/api" )
                 .maxAge( 24 * 60 * 60 )
                 .httpOnly( true )
@@ -78,9 +79,14 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor( Decoders.BASE64.decode( jwtSecret ) );
     }
 
+    public String parseJwt( HttpServletRequest request ) {
+        return getJwtFromCookies( request );
+    }
+
     // validate a JWT with a secret
     public boolean validateJwtToken( String token ) {
         try {
+            // build the object of JWTParser with parameter key() and compare with a token
             Jwts.parser().setSigningKey( key() ).build().parse( token );
             return true;
         } catch ( MalformedJwtException e ) {
@@ -96,8 +102,9 @@ public class JwtUtils {
         return false;
     }
 
-    public String generateTokenFromUsername( UserDetailsImpl userPrincipals ) {
-        return Jwts.builder()
+    private String generateTokenFromUsername( UserDetailsImpl userPrincipals ) {
+        return Jwts
+                .builder()
                 .subject( userPrincipals.getUsername() )
                 .claim( "role",
                         userPrincipals
@@ -110,31 +117,38 @@ public class JwtUtils {
                 .compact();
     }
 
-    public PublicKey generateJwtKeyDecryption( String jwtPublicKey )
-            throws NoSuchAlgorithmException, InvalidKeySpecException {
+    private PublicKey generateJwtKeyDecryption( String jwtPublicKey ) {
+        try {
+            KeyFactory keyFactory = KeyFactory.getInstance( "RSA" );
+            byte[] keyBytes = Base64.decodeBase64( jwtPublicKey );
+            X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec( keyBytes );
 
-        KeyFactory keyFactory = KeyFactory.getInstance( "RSA" );
-        byte[] keyBytes = Base64.decodeBase64( jwtPublicKey );
-        X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec( keyBytes );
+            return keyFactory.generatePublic( x509EncodedKeySpec );
 
-        return keyFactory.generatePublic( x509EncodedKeySpec );
-
-
+        } catch ( NoSuchAlgorithmException | InvalidKeySpecException e ) {
+            throw new RuntimeException( e );
+        }
     }
 
-    public PrivateKey generateJwtKeyEncryption( String jwtPrivateKey )
-            throws NoSuchAlgorithmException, InvalidKeySpecException {
+    private PrivateKey generateJwtKeyEncryption( String jwtPrivateKey ) {
 
-        KeyFactory keyFactory = KeyFactory.getInstance( "RSA" );
-        byte[] keyBytes = Base64.decodeBase64( jwtPrivateKey );
-        PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec( keyBytes );
+            try {
+                KeyFactory keyFactory = KeyFactory.getInstance( "RSA" );
+                byte[] keyBytes = Base64.decodeBase64( jwtPrivateKey );
+                PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec( keyBytes );
 
-        return keyFactory.generatePrivate( pkcs8EncodedKeySpec );
+                return keyFactory.generatePrivate( pkcs8EncodedKeySpec );
 
-    }
+            } catch ( NoSuchAlgorithmException | InvalidKeySpecException e ) {
+                throw new RuntimeException( e );
+            }
+        }
 
-    public String parseJwt( HttpServletRequest request ) {
-        return getJwtFromCookies( request );
+    private KeyPair getKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance( "RSA" );
+        keyPairGenerator.initialize( 2048 );
+
+        return  keyPairGenerator.generateKeyPair();
     }
 }
 
