@@ -65,9 +65,6 @@ public class AuthService {
         // Set the authentication in the security context
         SecurityContextHolder.getContext().setAuthentication( authentication );
 
-        // Set user activity status as active in the database
-        applicationUserRepository.setUserActivity( loginRequest.getEmail(), true );
-
         // Retrieve UserDetails from the authenticated principal
         UserDetailsImpl userDetails = ( UserDetailsImpl ) authentication.getPrincipal();
 
@@ -129,9 +126,6 @@ public class AuthService {
         if ( jwt != null ) {
             // Extract the username from the JWT token
             String username = jwtUtils.getUserNameFromJwtToken( jwt );
-
-            // Set user activity status as inactive in the database
-            applicationUserRepository.setUserActivity( username, false );
         }
 
         // Generate a clean JWT cookie

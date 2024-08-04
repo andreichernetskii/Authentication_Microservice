@@ -1,38 +1,30 @@
 package com.example.asymm_jwt_test.config.jwt;
 
-import com.example.asymm_jwt_test.application_user.ApplicationUserRepository;
 import com.example.asymm_jwt_test.application_user.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 import org.slf4j.Logger;
 
+@Component
 @RequiredArgsConstructor
 public class AuthTokenFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
     private final UserDetailsServiceImpl userDetailsService;
-    private final ApplicationUserRepository applicationUserRepository;
 
     private static final Logger logger = LoggerFactory.getLogger( AuthTokenFilter.class );
-
-//    What we do inside doFilterInternal():
-//              – get JWT from the HTTP Cookies
-//              – if the request has JWT, validate it, parse username from it
-//              – from username, get UserDetails to create an Authentication object
-//              – set the current UserDetails in SecurityContext using setAuthentication(authentication) method.
 
     @Override
     protected void doFilterInternal( HttpServletRequest request,

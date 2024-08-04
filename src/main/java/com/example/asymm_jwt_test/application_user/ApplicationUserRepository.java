@@ -33,23 +33,4 @@ public interface ApplicationUserRepository extends JpaRepository<ApplicationUser
             WHERE users.email = :email
             """ )
     Boolean existsByUsername( @Param( "email" ) String email );
-
-    // Transactional query to update the active status of an ApplicationUser by email
-    @Transactional
-    @Modifying
-    @Query( """
-            UPDATE ApplicationUser user
-            SET user.active = :isActive
-            WHERE user.email = :email
-            """ )
-    void setUserActivity( @Param( "email" ) String email,
-                          @Param( "isActive" ) boolean isActive );
-
-    // Query to check if an ApplicationUser is active by email
-    @Query( """
-            SELECT user.active
-            FROM ApplicationUser user
-            WHERE user.email = :email
-            """ )
-    boolean isUserActive( @Param( "email" ) String email );
 }

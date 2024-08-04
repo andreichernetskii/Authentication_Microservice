@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,7 +22,6 @@ public class ApplicationUser  {
     @ElementCollection
     @Enumerated( EnumType.STRING )
     private Set<UserRole> roles = new HashSet<>();
-    private boolean active;
 
     public ApplicationUser( String email, String password ) {
         this.email = email;
