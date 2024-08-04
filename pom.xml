@@ -87,6 +87,19 @@
             <scope>runtime</scope>
         </dependency>
 
+<!--        HashiCorp Vault -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-vault-config</artifactId>
+            <version>4.1.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.vault</groupId>
+            <artifactId>spring-vault-core</artifactId>
+            <version>3.1.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>
