@@ -2,7 +2,10 @@ package com.example.asymm_jwt_test.auth;
 
 import com.example.asymm_jwt_test.application_user.request.LoginRequest;
 import com.example.asymm_jwt_test.application_user.request.SignupRequest;
+import com.example.asymm_jwt_test.config.jwt.KeyPairOnStartGenerator;
+import com.example.asymm_jwt_test.kafka.KafkaProducer;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,14 +13,14 @@ import org.springframework.web.bind.annotation.*;
  * Controller for handling authentication-related requests
  */
 @CrossOrigin( origins = "*", maxAge = 3600 )
+@RequiredArgsConstructor
 @RestController
 @RequestMapping( "/api/auth" )
 public class AuthController {
     private final AuthService authService;
+    private final KafkaProducer kafkaProducer;
+    private final KeyPairOnStartGenerator keyPairOnStartGenerator;
 
-    public AuthController( AuthService authService ) {
-        this.authService = authService;
-    }
 
     // Endpoint for authenticating a user
     @PostMapping( "/signin" )
@@ -40,5 +43,11 @@ public class AuthController {
     @GetMapping( "/username" )
     public String getActualUserName() {
         return authService.getActualUserName();
+    }
+
+    @PostMapping( "/send-key" )
+    public String sendPublicKey() {
+        kafkaProducer.sendPublicKey( keyPairOnStartGenerator.getPublicKey() );
+        return "The was sent";
     }
 }
