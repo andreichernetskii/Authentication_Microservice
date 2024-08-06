@@ -53,7 +53,6 @@ public class JwtUtils {
                 .path( "/api" )
                 .maxAge( 24 * 60 * 60 )
                 .httpOnly( true )
-                .secure( true )
                 .build();
     }
 

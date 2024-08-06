@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,7 +27,6 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
  */
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
     private final UserDetailsServiceImpl userDetailsService;
@@ -62,9 +62,9 @@ public class SecurityConfiguration {
         MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder( introspector );
 
         http
-                .csrf( csrf -> csrf.disable() )
-                .cors( Customizer.withDefaults() )
-                .headers( headers -> headers.disable() )
+                .csrf( AbstractHttpConfigurer::disable )
+                .cors( AbstractHttpConfigurer::disable )
+                .headers( AbstractHttpConfigurer::disable )
                 .exceptionHandling( exception -> exception.authenticationEntryPoint( unauthorizedHandle ) )
                 .sessionManagement( session -> session.sessionCreationPolicy( SessionCreationPolicy.STATELESS ) )
                 .authenticationProvider( authenticationProvider() )
