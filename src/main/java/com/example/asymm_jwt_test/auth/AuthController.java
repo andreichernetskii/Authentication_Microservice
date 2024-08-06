@@ -1,5 +1,6 @@
 package com.example.asymm_jwt_test.auth;
 
+import com.example.asymm_jwt_test.application_user.ApplicationUser;
 import com.example.asymm_jwt_test.application_user.request.LoginRequest;
 import com.example.asymm_jwt_test.application_user.request.SignupRequest;
 import com.example.asymm_jwt_test.config.jwt.KeyPairOnStartGenerator;
@@ -8,6 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Controller for handling authentication-related requests
@@ -49,5 +52,10 @@ public class AuthController {
     public String sendPublicKey() {
         kafkaProducer.sendPublicKey( keyPairOnStartGenerator.getPublicKey() );
         return "The was sent";
+    }
+
+    @GetMapping( "/all" )
+    public List<ApplicationUser> getAllUsers() {
+        return authService.getAllUsers();
     }
 }

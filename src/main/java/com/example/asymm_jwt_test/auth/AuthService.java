@@ -88,7 +88,7 @@ public class AuthService {
 
     // Registers a new user.
     public ResponseEntity<Object> registerUser( SignupRequest signUpRequest ) {
-        if ( applicationUserRepository.existsByUsername( signUpRequest.getEmail() ) ) {
+        if ( applicationUserRepository.existsByEmail( signUpRequest.getEmail() ) ) {
             return ResponseEntity.badRequest().body( new MessageResponse( "Error: Email is already taken!" ) );
         }
 
@@ -139,5 +139,9 @@ public class AuthService {
     public String getActualUserName() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getName().split( "@" )[0];
+    }
+
+    public List<ApplicationUser> getAllUsers() {
+        return applicationUserRepository.findAll();
     }
 }

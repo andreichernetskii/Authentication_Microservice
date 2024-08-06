@@ -1,16 +1,30 @@
 version: '3.8'
 services:
-  postgres-db:
-    image: postgres
-    container_name: user_db
-    environment:
-      POSTGRES_DB: user_db
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: password
-    volumes:
-      - db-data:/var/lib/postgresql/data
+
+#  postgres-db:
+#    image: postgres
+#    container_name: user_db
+#    environment:
+#      POSTGRES_DB: user_db
+#      POSTGRES_USER: username
+#      POSTGRES_PASSWORD: password
+#    volumes:
+#      - db-data:/var/lib/postgresql/data
+#    ports:
+#      - "5432:5432"
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
     ports:
-      - "5432:5432"
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+#      MONGO_INITDB_DATABASE: user_db
+    volumes:
+      - ./vol/mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+
 
   zookeeper:
     image: 'confluentinc/cp-zookeeper:latest'
@@ -41,4 +55,4 @@ services:
       - ./kafka-data:/var/lib/kafka/data
 
 volumes:
-  db-data:
+  mongo-data:
