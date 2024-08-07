@@ -21,9 +21,6 @@ import java.util.List;
 @RequestMapping( "/api/auth" )
 public class AuthController {
     private final AuthService authService;
-    private final KafkaProducer kafkaProducer;
-    private final KeyPairOnStartGenerator keyPairOnStartGenerator;
-
 
     // Endpoint for authenticating a user
     @PostMapping( "/signin" )
@@ -46,12 +43,6 @@ public class AuthController {
     @GetMapping( "/username" )
     public String getActualUserName() {
         return authService.getActualUserName();
-    }
-
-    @PostMapping( "/send-key" )
-    public String sendPublicKey() {
-        kafkaProducer.sendPublicKey( keyPairOnStartGenerator.getPublicKey() );
-        return "The was sent";
     }
 
     @GetMapping( "/all" )
