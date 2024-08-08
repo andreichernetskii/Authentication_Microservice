@@ -9,7 +9,6 @@ import com.example.asymm_jwt_test.application_user.request.SignupRequest;
 import com.example.asymm_jwt_test.application_user.response.MessageResponse;
 import com.example.asymm_jwt_test.application_user.response.UserInfoResponse;
 import com.example.asymm_jwt_test.config.jwt.JwtUtils;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -76,7 +75,7 @@ public class AuthService {
                 .getAuthorities()
                 .stream()
                 .map( item -> item.getAuthority() )
-                .collect( Collectors.toList() );
+                .toList();
 
         // Build and return the response containing JWT token and user information
         return ResponseEntity.ok().header( HttpHeaders.SET_COOKIE, jwtCookie.toString() )
@@ -118,16 +117,7 @@ public class AuthService {
     }
 
     // Logs out a user and invalidates the JWT token.
-    public ResponseEntity<Object> logoutUser( HttpServletRequest request ) {
-
-        // Parse the JWT token from the request
-        String jwt = jwtUtils.parseJwt( request );
-
-        if ( jwt != null ) {
-            // Extract the username from the JWT token
-            String username = jwtUtils.getUserNameFromJwtToken( jwt );
-        }
-
+    public ResponseEntity<Object> logoutUser() {
         // Generate a clean JWT cookie
         ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
 

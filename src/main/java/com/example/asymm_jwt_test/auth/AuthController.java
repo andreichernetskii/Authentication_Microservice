@@ -36,8 +36,8 @@ public class AuthController {
 
     // Endpoint for logging out a user
     @PostMapping( "/signout" )
-    public ResponseEntity<?> logoutUser( HttpServletRequest request ) {
-        return authService.logoutUser( request );
+    public ResponseEntity<?> logoutUser() {
+        return authService.logoutUser();
     }
 
     @GetMapping( "/username" )
