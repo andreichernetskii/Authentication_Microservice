@@ -4,10 +4,10 @@ import com.example.asymm_jwt_test.application_user.ApplicationUser;
 import com.example.asymm_jwt_test.application_user.ApplicationUserRepository;
 import com.example.asymm_jwt_test.application_user.UserDetailsImpl;
 import com.example.asymm_jwt_test.application_user.request.LoginRequest;
+import com.example.asymm_jwt_test.application_user.request.SignupRequest;
+import com.example.asymm_jwt_test.application_user.response.MessageResponse;
 import com.example.asymm_jwt_test.application_user.response.UserInfoResponse;
 import com.example.asymm_jwt_test.config.jwt.JwtUtils;
-import com.mongodb.client.model.Collation;
-import jakarta.security.auth.message.AuthException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,17 +21,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -61,7 +56,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void getLoggedUser_Success() {
+    void getLoggedUserTest_Success() {
         UserDetailsImpl userDetails = mock( UserDetailsImpl.class );
 
         when( securityContext.getAuthentication() ).thenReturn( authentication );
@@ -77,14 +72,14 @@ class AuthServiceTest {
     }
 
     @Test
-    void testGetUser_Failed_ThrowException() {
+    void getLoggedUserTest_Failed_UserNotLogged() {
         when( securityContext.getAuthentication() ).thenReturn( null );
 
         assertThrows( AuthenticationException.class, () -> authService.getLoggedUser() );
     }
 
     @Test
-    void authenticateUser() {
+    void authenticateUserTest() {
         LoginRequest loginRequest = mock( LoginRequest.class );
 
         when( loginRequest.getEmail() ).thenReturn( "test@user" );
@@ -106,15 +101,49 @@ class AuthServiceTest {
 
         assertNotNull( response );
         assertTrue( response.getHeaders().containsKey( HttpHeaders.SET_COOKIE ) );
-        assertEquals( "test@user", (( UserInfoResponse ) response.getBody()).getEmail() );
+        assertEquals( "test@user", ( ( UserInfoResponse ) response.getBody() ).getEmail() );
     }
 
     @Test
-    void registerUser() {
+    void registerUserTest_Success() {
+        SignupRequest signupRequest = mock( SignupRequest.class );
+
+        when( signupRequest.getEmail() ).thenReturn( "test@user" );
+        when( signupRequest.getPassword() ).thenReturn( "password" );
+        when( signupRequest.getRole() ).thenReturn( Set.of( "ROLE_USER" ) );
+
+        when( applicationUserRepository.existsByEmail( "test@user" ) ).thenReturn( false );
+        when( encoder.encode( "password" ) ).thenReturn( "encodedPassword" );
+        when( applicationUserRepository.save( any( ApplicationUser.class ) ) ).thenReturn( new ApplicationUser() );
+
+        ResponseEntity<Object> response = authService.registerUser( signupRequest );
+
+        assertNotNull( response );
+        assertEquals( "User registered successfully!", ( ( MessageResponse ) response.getBody() ).getMessage() );
     }
 
     @Test
-    void logoutUser() {
+    void registerUserTest_Failed_EmailTaken() {
+        SignupRequest signupRequest = mock( SignupRequest.class );
+
+        when( signupRequest.getEmail() ).thenReturn( "test@user" );
+        when( applicationUserRepository.existsByEmail( "test@user" ) ).thenReturn( true );
+
+        ResponseEntity<Object> response = authService.registerUser( signupRequest );
+
+        assertNotNull( response );
+        assertEquals( "Error: Email is already taken!", ( ( MessageResponse ) response.getBody() ).getMessage() );
+    }
+
+    @Test
+    void logoutUserTest() {
+        when( jwtUtils.getCleanJwtCookie() ).thenReturn( ResponseCookie.from( "jwt", "" ).build() );
+
+        ResponseEntity<Object> response = authService.logoutUser();
+
+        assertNotNull( response );
+        assertTrue( response.getHeaders().containsKey( HttpHeaders.SET_COOKIE ) );
+        assertEquals( "You've been signed out!", ( ( MessageResponse ) response.getBody() ).getMessage() );
     }
 
     @Test
@@ -122,6 +151,12 @@ class AuthServiceTest {
     }
 
     @Test
-    void getAllUsers() {
+    void getAllUsersTest() {
+        List<ApplicationUser> users = Arrays.asList( new ApplicationUser(), new ApplicationUser() );
+        when( applicationUserRepository.findAll() ).thenReturn( users );
+
+        List<ApplicationUser> result = authService.getAllUsers();
+
+        assertEquals( users.size(), result.size() );
     }
 }
