@@ -1,17 +1,17 @@
 version: '3.8'
 services:
 
-#  postgres-db:
-#    image: postgres
-#    container_name: user_db
-#    environment:
-#      POSTGRES_DB: user_db
-#      POSTGRES_USER: username
-#      POSTGRES_PASSWORD: password
-#    volumes:
-#      - db-data:/var/lib/postgresql/data
-#    ports:
-#      - "5432:5432"
+  postgres-db:
+    image: postgres
+    container_name: user_db
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
   mongodb:
     image: mongo:latest
@@ -54,4 +54,5 @@ services:
       - ./kafka-data:/var/lib/kafka/data
 
 volumes:
+  db-data:
   mongo-data:
