@@ -1,6 +1,5 @@
 package com.example.asymm_jwt_test.application_user;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -14,10 +13,10 @@ import java.util.Set;
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Document
 public class ApplicationUser  {
     @Id
+    private String id;
     private String email;
     private String password;
     private Set<UserRole> roles = new HashSet<>();

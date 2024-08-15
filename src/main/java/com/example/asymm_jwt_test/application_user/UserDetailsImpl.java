@@ -1,7 +1,7 @@
 package com.example.asymm_jwt_test.application_user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,19 +14,14 @@ import java.util.stream.Collectors;
 /**
  * UserDetails implementation representing a user's details for authentication
  */
+@AllArgsConstructor
 public class UserDetailsImpl implements UserDetails {
+    private String id;
     private String email;
     @JsonIgnore
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl( String email, String password, Collection<? extends GrantedAuthority> authorities ) {
-        this.email = email;
-        this.password = password;
-        this.authorities = authorities;
-    }
-
-    // Static method to build a UserDetailsImpl instance from an ApplicationUser
     public static UserDetailsImpl build(ApplicationUser applicationUser) {
 
         List<GrantedAuthority> authorities = applicationUser.getRoles().stream()
@@ -34,6 +29,7 @@ public class UserDetailsImpl implements UserDetails {
                 .collect( Collectors.toList());
 
         return new UserDetailsImpl(
+                applicationUser.getId(),
                 applicationUser.getEmail(),
                 applicationUser.getPassword(),
                 authorities
@@ -43,6 +39,10 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
+    }
+
+    public String getId() {
+        return id;
     }
 
     @Override
@@ -55,8 +55,6 @@ public class UserDetailsImpl implements UserDetails {
         return email;
     }
 
-    // for now, it's not useful like field in class
-    // it is enough to be like this
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -77,7 +75,6 @@ public class UserDetailsImpl implements UserDetails {
         return true;
     }
 
-    // Equals method based on email for comparing UserDetailsImpl instances
     @Override
     public boolean equals( Object obj ) {
         if ( this == obj ) return true;

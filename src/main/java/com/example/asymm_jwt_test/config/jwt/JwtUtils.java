@@ -18,7 +18,6 @@ import org.springframework.web.util.WebUtils;
 
 import java.security.*;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -46,7 +45,7 @@ public class JwtUtils {
     }
 
     public ResponseCookie generateJwtCookie( UserDetailsImpl userPrincipal ) {
-        String jwt = generateTokenFromUsername( userPrincipal );
+        String jwt = generateTokenFromUserId( userPrincipal );
 
         return ResponseCookie
                 .from( jwtCookie, jwt )
@@ -102,15 +101,16 @@ public class JwtUtils {
         return false;
     }
 
-    private String generateTokenFromUsername( UserDetailsImpl userPrincipals ) {
+    private String generateTokenFromUserId( UserDetailsImpl userPrincipals ) {
         return Jwts
                 .builder()
-                .subject( userPrincipals.getUsername() )
+                .subject( userPrincipals.getId() )
                 .claim( "role",
                         userPrincipals
                                 .getAuthorities()
                                 .stream()
-                                .map( GrantedAuthority::getAuthority ).collect( Collectors.toList() ) )
+                                .map( GrantedAuthority::getAuthority )
+                                .toList() )
                 .issuedAt( new Date() )
                 .expiration( new Date( ( new Date() ).getTime() + jwtExpirationMs ) )
                 .signWith( privateKey, Jwts.SIG.RS256 )
