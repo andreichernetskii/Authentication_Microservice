@@ -17,12 +17,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         this.applicationUserRepository = applicationUserRepository;
     }
 
-    // Implementation of UserDetailsService method to load user details by username
     @Override
     @Transactional
     public UserDetails loadUserByUsername( String username ) throws UsernameNotFoundException {
 
-        // Find the user by email (username) in the repository
         ApplicationUser user = applicationUserRepository.findByEmail( username )
                 .orElseThrow( () -> new UsernameNotFoundException( String.format( "User with email %s not found", username ) ) );
 

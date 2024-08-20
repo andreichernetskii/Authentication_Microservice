@@ -71,11 +71,7 @@ public class AuthService {
         ResponseCookie jwtCookie = jwtUtils.generateJwtCookie( userDetails );
 
         // Extract user roles from UserDetails
-        List<String> roles = userDetails
-                .getAuthorities()
-                .stream()
-                .map( GrantedAuthority::getAuthority )
-                .toList();
+        List<String> roles = extractRolesFromUserDetails( userDetails );
 
         // Build and return the response containing JWT token and user information
         return ResponseEntity.ok().header( HttpHeaders.SET_COOKIE, jwtCookie.toString() )
@@ -83,6 +79,14 @@ public class AuthService {
                         userDetails.getUsername(),
                         roles
                 ) );
+    }
+
+    private List<String> extractRolesFromUserDetails( UserDetailsImpl userDetails ) {
+        return userDetails
+                .getAuthorities()
+                .stream()
+                .map( GrantedAuthority::getAuthority )
+                .toList();
     }
 
     // Registers a new user.

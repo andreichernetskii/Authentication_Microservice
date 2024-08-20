@@ -24,9 +24,7 @@ public class UserDetailsImpl implements UserDetails {
 
     public static UserDetailsImpl build(ApplicationUser applicationUser) {
 
-        List<GrantedAuthority> authorities = applicationUser.getRoles().stream()
-                .map( role -> new SimpleGrantedAuthority( role.name() ) )
-                .collect( Collectors.toList());
+        List<GrantedAuthority> authorities = getGrantedAuthorities( applicationUser );
 
         return new UserDetailsImpl(
                 applicationUser.getId(),
@@ -34,6 +32,12 @@ public class UserDetailsImpl implements UserDetails {
                 applicationUser.getPassword(),
                 authorities
         );
+    }
+
+    private static List<GrantedAuthority> getGrantedAuthorities( ApplicationUser applicationUser ) {
+        return applicationUser.getRoles().stream()
+                .map( role -> new SimpleGrantedAuthority( role.name() ) )
+                .collect( Collectors.toList() );
     }
 
     @Override
