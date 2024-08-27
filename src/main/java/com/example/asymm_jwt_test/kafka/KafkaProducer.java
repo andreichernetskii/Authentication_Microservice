@@ -14,6 +14,8 @@ public class KafkaProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
 
     public void sendPublicKey( PublicKey publicKey ) {
-        kafkaTemplate.send( "public_key_distribution", Base64.getEncoder().encodeToString(publicKey.getEncoded()) );
+        for ( int i = 0; i < 2; i++ ) {
+            kafkaTemplate.send( "public_key_distribution", i, "message" + i, Base64.getEncoder().encodeToString(publicKey.getEncoded()) );
+        }
     }
 }
