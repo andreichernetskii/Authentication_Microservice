@@ -1,6 +1,6 @@
 package com.example.asymm_jwt_test.config.jwt;
 
-import com.example.asymm_jwt_test.kafka.KafkaProducer;
+import com.example.asymm_jwt_test.kafka.KafkaProducerService;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +12,7 @@ import java.security.*;
 @Component
 @RequiredArgsConstructor
 public class KeyPairOnStartGenerator {
-    private final KafkaProducer kafkaProducer;
+    private final KafkaProducerService kafkaProducer;
     private PrivateKey privateKey;
     private PublicKey publicKey;
 
